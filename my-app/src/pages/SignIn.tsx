@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { jwtDecode }  from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,7 +16,7 @@ export default function SignIn() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:8000/login", {
+      const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,7 +39,7 @@ export default function SignIn() {
       const userId = decoded.sub;
 
       setMessage(`Zalogowano jako: ID ${userId}`);
-      
+
       // Przekieruj na /listings po chwili
       setTimeout(() => {
         navigate("/listings");
@@ -46,8 +47,6 @@ export default function SignIn() {
     } catch (error: any) {
       setMessage(error.message || "Wystąpił błąd.");
     }
-
-    
 
     console.log("Logging in:", formData);
     // can add validation or backend API call here later

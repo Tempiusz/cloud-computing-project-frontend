@@ -12,6 +12,7 @@ import SignInPage from './pages/SignIn.tsx'
 import SignUpPage from './pages/SignUp.tsx'
 import LandingPage from './pages/LandingPage.jsx'
 import MyListingsPage from './pages/MyListingsPage.jsx'
+import ItemDetailPage from './pages/ItemDetailPage.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -24,6 +25,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />        
         <Route path="/mylistings" element={<MyListingsPage />} />
+        <Route path="/item/:id" element={<ItemDetailPage />} />
+        <Route path="/edit/:id" element={<EditListingPage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

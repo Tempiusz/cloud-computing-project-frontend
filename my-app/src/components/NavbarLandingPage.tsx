@@ -32,7 +32,7 @@ export default function Navbar() {
     <div className="bg-gray-600 shadow-md h-[100px] w-full sticky top-0 z-50">
       <nav className="flex justify-between items-center px-6 py-4 h-full max-w-6xl mx-auto">
         <div className="flex items-center gap-2">
-          <Link  to={`/listings`}>
+          <Link to={`/`}>
             <img
               src="/logo.png"
               alt="ClothCloud"

@@ -26,11 +26,10 @@ export default function About() {
         </ol>
       </div>
 
-      <div className="h-30 md:h-50">
+      <div>
         <img
-          src="/roblox1.png"
+          src="/shirts.png"
           alt="Preview of clothing items available for swap"
-          className="h-80"
         />
       </div>
     </section>

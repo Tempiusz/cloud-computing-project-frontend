@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -9,11 +9,13 @@ export default function SignUp() {
     password: "",
     confirmPassword: "",
     phoneNumber: "",
-    role: "user"
+    role: "user",
   });
 
   const [isTouched, setIsTouched] = useState(false);
   const [isConfirmTouched, setIsConfirmTouched] = useState(false);
+  const [showContinue, setShowContinue] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -31,14 +33,14 @@ export default function SignUp() {
     return "";
   };
 
-  const getConfirmPasswordError = () => {    
+  const getConfirmPasswordError = () => {
     if (formData.confirmPassword !== formData.password)
       return "⚠️ Passwords do not match";
     return "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); //Stops the browser from submitting the form the traditional way
+    e.preventDefault();
 
     const pwdErr = getPasswordError();
     const confirmErr = getConfirmPasswordError();
@@ -49,22 +51,35 @@ export default function SignUp() {
     }
 
     try {
-      const response = await axios.post('http://localhost:8000/register', {
+      // 1. Sign up
+      const response = await axios.post(`${API_URL}/register`, {
         email: formData.email,
         password: formData.password,
         name: formData.name,
         phone_number: formData.phoneNumber,
-        role: 'user'        
+        role: "user",
       });
 
-      alert('User registered successfully!');
+      alert("User registered successfully!");
       console.log(response.data);
-      alert(`Email: ${formData.email}\nPassword: ${formData.password}`);
 
-      
-    } catch (error) {      
-      console.error("General error:", error.message);
-      alert("An unexpected error occurred.");      
+      // 2. Login immediately after successful sign-up
+      const loginResponse = await axios.post(`${API_URL}/login`, {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      // 3. Store login info
+      localStorage.setItem("token", loginResponse.data.access_token);
+      localStorage.setItem("user", JSON.stringify({ name: formData.name }));
+
+      // 4. Show "Continue" button
+      setShowContinue(true);
+    } catch (error: any) {
+      console.error("Signup error:", error.response?.data);
+      alert(
+        "Signup failed: " + (error.response?.data?.detail || "Unknown error")
+      );
     }
   };
 
@@ -75,7 +90,7 @@ export default function SignUp() {
   const isConfirmInvalid = isConfirmTouched && confirmPasswordError;
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 py-12">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded shadow-md w-full max-w-sm"
@@ -83,22 +98,20 @@ export default function SignUp() {
         <h2 className="text-2xl font-bold mb-6 text-center">
           Sign up to ClothCloud
         </h2>
-
         <div className="mb-4">
           <label htmlFor="name" className="block mb-1 font-medium">
             Username
           </label>
-          <input 
+          <input
             type="text"
             name="name"
             id="name"
-            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={handleChange}
             value={formData.name}
             required
           />
         </div>
-
         <div className="mb-4">
           <label htmlFor="email" className="block mb-1 font-medium">
             Email*
@@ -113,12 +126,11 @@ export default function SignUp() {
             required
           />
         </div>
-
         <div className="mb-4">
           <label htmlFor="phoneNumber" className="block mb-1 font-medium">
             Phone number
           </label>
-          <input 
+          <input
             type="phoneNumber"
             name="phoneNumber"
             id="phoneNumber"
@@ -128,7 +140,6 @@ export default function SignUp() {
             required
           />
         </div>
-
         <div className="mb-4">
           <label htmlFor="password" className="block mb-1 font-medium">
             Password*
@@ -150,7 +161,6 @@ export default function SignUp() {
             <p className="text-sm text-red-600 mt-1">{passwordError}</p>
           )}
         </div>
-
         <div className="mb-6">
           <label htmlFor="confirmPassword" className="block mb-1 font-medium">
             Confirm Password*
@@ -172,14 +182,12 @@ export default function SignUp() {
             <p className="text-sm text-red-600 mt-1">{confirmPasswordError}</p>
           )}
         </div>
-
         <button
           type="submit"
           className="w-full bg-blue-600 text-white font-semibold py-2 rounded shadow hover:bg-blue-700 transition duration-200"
         >
           Create Account
         </button>
-
         <p className="text-sm text-center text-gray-600 mt-4">
           Already have an account?{" "}
           <Link
@@ -189,7 +197,16 @@ export default function SignUp() {
             Sign in →
           </Link>
         </p>
-
+        {showContinue && (
+          <p className="text-center mt-4">
+            <Link
+              to="/listings"
+              className="text-green-600 hover:underline font-medium"
+            >
+              ✅ Click here to continue →
+            </Link>
+          </p>
+        )}
         <div className="flex items-center gap-2 justify-center mt-6">
           <Link to="/">
             <img

@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 
 function AddListingPage({ addListing }) {
   const navigate = useNavigate(); // ← tu jest poprawne użycie hooka
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const [formData, setFormData] = useState({
     itemName: "",
@@ -19,7 +20,18 @@ function AddListingPage({ addListing }) {
   };
 
   const handleFileChange = (e) => {
-    setFormData((prev) => ({ ...prev, photo: e.target.files[0] }));
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData((prev) => ({
+        ...prev,
+        photo: reader.result.split(',')[1], // tylko czysty base64 bez nagłówka
+      }));
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
@@ -33,16 +45,16 @@ function AddListingPage({ addListing }) {
 
   const payload = {
     name: formData.itemName,
-    image: formData.photo ? formData.photo.name : null, // lub base64, jeśli backend akceptuje
+    image: formData.photo,
     price: parseFloat(formData.price),
     address: formData.exchangeAddress,
-    category_id: 1, // tymczasowo na sztywno
+    description: formData.description || "",
   };
 
   console.log("Payload:", payload);
 
   try {
-    const response = await fetch("http://localhost:8000/items/", {
+    const response = await fetch(`${API_URL}/items/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,7 +65,8 @@ function AddListingPage({ addListing }) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`Błąd dodawania ogłoszenia: ${errorData.detail || response.status}`);
+      console.error("Szczegóły błędu z backendu:", errorData); // ← to dodaj
+      throw new Error(`Błąd dodawania ogłoszenia: ${JSON.stringify(errorData.detail || errorData)}`);
     }
 
     const result = await response.json();
@@ -93,7 +106,10 @@ function AddListingPage({ addListing }) {
               type="text"
               name="price"
               value={formData.price}
-              onChange={handleChange}
+              onChange={(e) => {
+                const onlyNumbers = e.target.value.replace(/\D/g, ""); // usuwa wszystko co nie cyfrą
+                setFormData((prev) => ({ ...prev, price: onlyNumbers }));
+              }}
               className="w-full p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
