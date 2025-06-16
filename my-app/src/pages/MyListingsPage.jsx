@@ -26,12 +26,13 @@ function MyListingsPage() {
 
         // Dla każdego itemu z requested status pobierz nazwę użytkownika
         const enrichedItems = await Promise.all(items.map(async (item) => {
-          if (item.status === "requested" && item.receiver_id) {
+          if ((item.status === "requested" ||  "closed") && item.receiver_id) {
             try {
               const res = await axios.get(`${API_URL}/user-name/${item.receiver_id}`);
               return {
                 ...item,
-                requesting_user_name: res.data.username,
+                requesting_user_name: res.data.name,
+                requesting_user_phone: res.data.phone_number,
               };
             } catch (err) {
               console.error(`Nie udało się pobrać użytkownika dla ID ${item.receiver_id}`);
@@ -154,8 +155,11 @@ function MyListingsPage() {
               {/* STATUS */}
               <div className="absolute top-2 right-4 text-sm font-semibold">
                 Status: {item.status}
-                {item.status === "requested" && (
-                  <div className="text-xs font-normal">by: {item.requesting_user_name}</div>
+                {(item.status === "requested" || item.status === "closed") && (
+                  <div>
+                    <div className="text-xs font-normal">by: {item.requesting_user_name}</div>
+                    <div className="text-xs font-normal">📞 {item.requesting_user_phone}</div>
+                  </div>
                 )}
               </div>
 

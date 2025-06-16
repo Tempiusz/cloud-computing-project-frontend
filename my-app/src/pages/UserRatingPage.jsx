@@ -16,7 +16,7 @@ export default function UserRatingPage() {
   const fetchUserName = async () => {
     try {
       const res = await axios.get(`${API_URL}/user-name/${userId}`);
-      setUserName(res.data.username);
+      setUserName(res.data.name);
     } catch (err) {
       console.error('Failed to fetch user name:', err);
     }
@@ -44,7 +44,7 @@ export default function UserRatingPage() {
     if (usernames[id]) return; // mamy już username, nie pobieraj ponownie
     try {
       const res = await axios.get(`${API_URL}/user-name/${id}`);
-      setUsernames(prev => ({ ...prev, [id]: res.data.username }));
+      setUsernames(prev => ({ ...prev, [id]: res.data.name }));
     } catch (err) {
       console.error(`Failed to fetch username for user_id=${id}`, err);
       setUsernames(prev => ({ ...prev, [id]: 'Unknown user' }));

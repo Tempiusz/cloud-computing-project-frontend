@@ -16,7 +16,7 @@ export default function ItemDetailPage() {
       const res = await fetch(`${API_URL}/user-name/${userId}`);
       if (!res.ok) throw new Error("Nie udało się pobrać nazwy użytkownika");
       const data = await res.json();
-      setUsername(data.username);
+      setUsername(data.name);
     } catch (error) {
       console.error(error);
       setUsername("Unknown user");
